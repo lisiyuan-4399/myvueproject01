@@ -1,0 +1,13 @@
+#elmain{
+    padding: 10px 10px 10px 5px;
+    background-color: #b3e19d;
+}
+#elheader{
+    padding: 0;
+
+}
+#elaside{
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
