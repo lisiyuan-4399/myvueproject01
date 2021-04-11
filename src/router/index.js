@@ -7,6 +7,7 @@ const Coach = () => import('../views/admin/Coach');
 const Equipment = () => import('../views/admin/Equipment');
 const Login = () => import('../views/Login');
 const User = () => import('../views/admin/User');
+const Appointment = () => import('../views/admin/Appointment');
 const ToView = () => import('../views/coach/ToView');
 const EquipAppoint = () => import('../views/user/EquipAppoint');
 const CoachAppoint = () => import('../views/user/CoachAppoint');
@@ -46,6 +47,10 @@ const routes = [
             {
                 path: '/middle/admin/equipment',
                 component: Equipment
+            },
+            {
+                path: '/middle/admin/appointment',
+                component: Appointment
             },
             // 教练路由
             {

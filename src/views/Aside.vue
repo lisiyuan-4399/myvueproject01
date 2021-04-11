@@ -1,20 +1,8 @@
 <template>
     <div>
-        <el-row>
-        <el-col :span="24">
-            <el-menu
-                    :default-active="isDefaultActive"
-                    class="el-menu-vertical-demo"
-                    background-color="#545c64"
-                    text-color="#fff"
-                    active-text-color="#ffd04b"
-                    router>
-                <slot name="slotUser"></slot>
-                <slot name="slotCoach"></slot>
-                <slot name="slotAdmin"></slot>
-            </el-menu>
-        </el-col>
-        </el-row>
+        <slot name="slotUser"></slot>
+        <slot name="slotCoach"></slot>
+        <slot name="slotAdmin"></slot>
     </div>
 </template>
 

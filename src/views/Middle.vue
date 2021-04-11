@@ -38,9 +38,9 @@
         },
         data(){
             return{
-                userShow: true,
+                userShow: false,
                 coachShow: false,
-                adminShow: false,
+                adminShow: true,
             }
         },
     }

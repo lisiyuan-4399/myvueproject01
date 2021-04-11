@@ -77,7 +77,30 @@
 
 <script>
     export default {
-        name: "Login"
+        name: "Login",
+        data(){
+            return{
+
+            }
+        },
+        methods: {
+            hello(){
+                this.$axios({
+                    method: 'GET',
+                    url: 'http://localhost:8081/user/findAllUser',
+                    data: {
+
+                    }
+                    }).then((response)=>{
+                    console.log(response);
+                }).catch((error)=>{
+                    console.log(error);
+                })
+            }
+        },
+        created(){
+            this.hello();
+        }
     }
 </script>
 
