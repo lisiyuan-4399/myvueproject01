@@ -1,12 +1,262 @@
 <template>
     <div>
-        教练管理
+        <div style="padding-bottom: 20px">
+            <span style="padding-left: 20px">姓名 : </span>
+            <el-input
+                    placeholder="请输入内容"
+                    v-model="input"
+                    style="width: 20%"
+                    clearable>
+            </el-input>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <el-button type="primary" icon="el-icon-search">搜索</el-button>
+            <el-button type="primary" icon="el-icon-user" @click="toAddCoach()">新增教练</el-button>
+            <el-drawer
+                    :title="title"
+                    :visible.sync="dialog"
+                    custom-class="demo-drawer"
+            >
+                <div class="demo-drawer__content">
+                    <el-form :model="form" :rules="rules" ref="form">
+                        <el-form-item label="姓名" prop="name" :label-width="formLabelWidth">
+                            <el-input v-model="form.name" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="账号" prop="username" :label-width="formLabelWidth">
+                            <el-input v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="密码" prop="password" :label-width="formLabelWidth">
+                            <el-input v-model="form.password" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="性别" prop="sex" :label-width="formLabelWidth">
+                            <el-radio v-model="form.sex" :label="1">男</el-radio>
+                            <el-radio v-model="form.sex" :label="0">女</el-radio>
+                        </el-form-item>
+                        <el-form-item label="手机号" prop="phone" :label-width="formLabelWidth">
+                            <el-input v-model="form.phone" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="邮箱" prop="email" :label-width="formLabelWidth">
+                            <el-input v-model="form.email" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="描述" prop="description" :label-width="formLabelWidth">
+                            <el-input v-model="form.description" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                        <el-form-item label="图片" prop="pic" :label-width="formLabelWidth">
+                            <el-input v-model="form.pic" autocomplete="off" style="width: 300px"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <div class="demo-drawer__footer" style="padding-left: 20px">
+                        <el-button @click="cancelForm">取 消</el-button>
+                        <el-button v-show="title == '新增教练'" type="primary" @click="addCoach('form')" >确 定(添加)</el-button>
+                        <el-button v-show="title == '修改教练'" type="primary" @click="updateCoach('form')" >确 定(修改)</el-button>
+                    </div>
+                </div>
+            </el-drawer>
+        </div>
+        <el-table
+            :data="tableData"
+            style="width: 100%">
+        <el-table-column
+                prop="id"
+                label="编号"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="username"
+                label="账户"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="password"
+                label="密码"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="sex"
+                label="性别"
+                align="center"
+                :formatter="isSexFormat">
+        </el-table-column>
+        <el-table-column
+                prop="phone"
+                label="手机号"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="email"
+                label="邮箱"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="num"
+                label="预约次数"
+                align="center">
+        </el-table-column>
+        <el-table-column
+                prop="is_delete"
+                label="状态"
+                align="center"
+                :formatter="isDeleteFormat">
+        </el-table-column>
+        <el-table-column
+                label="操作"
+                align="center">
+            <template slot-scope="scope">
+                <el-button type="primary" icon="el-icon-edit" circle @click="toUpdateForm(scope.row)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" circle @click="deleteCoach(scope.row)"></el-button>
+            </template>
+        </el-table-column>
+    </el-table>
     </div>
 </template>
 
 <script>
     export default {
-        name: "Coach"
+        name: "Coach",
+        data() {
+            return {
+                tableData: [
+                    {
+                        id: 1,
+                        name: '李思雨',
+                        username: 'lisi',
+                        password: 'lisi',
+                        sex: 1,
+                        phone: '123455',
+                        email: '132@qq.com',
+                        description: '型男',
+                        pic: '图片链接',
+                        num: 99,
+                        is_delete: 0
+                    },
+                    {
+                        id: 2,
+                        name: '郭怀丽',
+                        username: 'guo',
+                        password: 'guo',
+                        sex: 0,
+                        phone: '123455',
+                        email: '132@qq.com',
+                        description: '靓女',
+                        pic: '图片链接',
+                        num: 99,
+                        is_delete: 0,
+                    }
+                ],
+                input: '',
+                title: '',
+                form: {
+                    id: '',
+                    name: '',
+                    sex: '',
+                    username: '',
+                    password: '',
+                    email: '',
+                    phone: '',
+                    description: '',
+                    pic: '',
+                    num: '',
+                },
+                // 表单验证，需要在 el-form-item 元素中增加 prop 属性
+                rules: {
+                    name:[
+                        {required: true, message: '姓名不可为空', trigger: 'blur'}
+                    ],
+                    username: [
+                        {required: true, message: '账号不可为空', trigger: 'blur'}
+                    ],
+                    password: [
+                        {required: true, message: '密码不可为空', trigger: 'blur'}
+                    ]
+                },
+                dialog: false,
+                formLabelWidth: '80px',
+            }
+        },
+        methods: {
+            addCoach(formName){
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        console.log("添加教练");
+
+                        this.dialog = false;
+                        console.log(this.form);
+                    }
+                });
+
+            },
+            cancelForm() {
+                this.dialog = false;
+            },
+            // 添加性别过滤
+            isSexFormat(date){
+                if(date.sex == 0){
+                    return '女'
+                }
+                if(date.sex == 1){
+                    return '男'
+                }
+            },
+            isDeleteFormat(date){
+                if(date.is_delete == 0){
+                    return '-'
+                }
+                if(date.is_delete == 1){
+                    return '已删除'
+                }
+            },
+            //去添加
+            toAddCoach(){
+                this.title = '新增教练';
+                this.dialog = true;
+            },
+            // 去修改
+            toUpdateForm(data){
+                console.log(data);
+                this.title = '修改教练' ;
+                // 进行编辑弹框
+                this.dialog = true ;
+                //将所以信息进行赋值
+                this.form = { // 编辑
+                    id : data.id,
+                    name : data.name,
+                    username: data.username,
+                    password: data.password,
+                    sex: data.sex,
+                    phone: data.phone,
+                    email: data.email,
+                    description: data.description,
+                    pic: data.pic,
+                    num: data.num,
+                } ;
+            },
+            //修改用户
+            updateCoach(formName){
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        console.log("修改教练");
+
+                        this.dialog = false;
+                        console.log(this.form);
+                    }
+                });
+            },
+            //删除用户
+            deleteCoach(data){
+                this.$confirm('是否确认删除（教练） 账户 '+data.username+'?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    //调用删除方法
+                    console.log("删除方法");
+                }).catch(() => {});
+            },
+        },
     }
 </script>
 

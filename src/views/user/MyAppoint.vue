@@ -1,24 +1,15 @@
 <template>
     <div>
         <div style="padding-bottom: 20px">
-            <span style="padding-left: 20px">用户姓名 : </span>
+            <span style="padding-left: 20px">姓名 : </span>
             <el-input
                     placeholder="请输入内容"
-                    v-model="inputUser"
-                    style="width: 20%"
-                    clearable>
-            </el-input>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <span style="padding-left: 20px">教练姓名 : </span>
-            <el-input
-                    placeholder="请输入内容"
-                    v-model="inputCoach"
+                    v-model="input"
                     style="width: 20%"
                     clearable>
             </el-input>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <el-button type="primary" icon="el-icon-search">搜索</el-button>
-
         </div>
         <el-table
                 :data="tableData"
@@ -29,32 +20,33 @@
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="nameuser"
-                    label="用户姓名"
+                    prop="name"
+                    label="教练名称"
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="username"
-                    label="用户账户"
+                    prop="sex"
+                    label="性别"
+                    align="center"
+                    :formatter="isSexFormat">
+            </el-table-column>
+            <el-table-column
+                    prop="age"
+                    label="年龄"
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="namecoach"
-                    label="教练姓名"
+                    prop="phone"
+                    label="手机号"
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="coachname"
-                    label="教练账户"
-                    align="center">
-            </el-table-column>
-            <el-table-column
-                    prop="begintime"
+                    prop="begin_time"
                     label="开始时间"
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="endtime"
+                    prop="end_time"
                     label="结束时间"
                     align="center">
             </el-table-column>
@@ -67,7 +59,14 @@
                     prop="is_valid"
                     label="状态"
                     align="center" :formatter="isValidFormat">
-
+            </el-table-column>
+            <el-table-column
+                    label="操作"
+                    align="center">
+                <template slot-scope="scope">
+                    <el-button v-show="scope.row.is_valid == 1" type="primary" circle>评价</el-button>
+                    <el-button v-show="scope.row.is_valid == 0" type="danger" circle>取消</el-button>
+                </template>
             </el-table-column>
         </el-table>
     </div>
@@ -75,41 +74,49 @@
 
 <script>
     export default {
-        name: "Appointment",
+        name: "MyAppoint",
         data(){
             return{
-                inputUser: '',
-                inputCoach: '',
                 tableData: [
                     {
                         id: 1,
-                        nameuser: '李思雨',
-                        username: 'lisi',
-                        namecoach: 'lisi',
-                        coachname: 'sdsd',
-                        begintime: '2020-4-13',
-                        endtime: '2020-4-14',
-                        evaluate:'评价',
-                        is_valid: 1
+                        name: '李思雨',
+                        age: 22,
+                        sex: 1,
+                        phone: '15238',
+                        begin_time: '2016-05-04',
+                        end_time: '2016-05-04',
+                        evaluate: '-',
+                        is_valid: 0,
                     },
                     {
                         id: 2,
-                        nameuser: '李思雨',
-                        username: 'lisi',
-                        namecoach: 'lisi',
-                        coachname: 'sdsd',
-                        begintime: '',
-                        endtime: '',
-                        evaluate:'评价',
-                        is_valid: 0
+                        name: '郭怀丽',
+                        age: 21,
+                        sex: 0,
+                        phone: '15890',
+                        begin_time: '2016-05-04',
+                        end_time: '2016-05-04',
+                        evaluate: '-',
+                        is_valid: 1,
                     }
                 ],
+                input: '',
             }
         },
         methods:{
+            // 添加性别过滤
+            isSexFormat(date){
+                if(date.sex == 0){
+                    return '女'
+                }
+                if(date.sex == 1){
+                    return '男'
+                }
+            },
             isValidFormat(date){
                 if(date.is_valid == 0){
-                    return '未完成'
+                    return '已预约'
                 }
                 if(date.is_valid == 1){
                     return '已完成'
