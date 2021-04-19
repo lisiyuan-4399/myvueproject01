@@ -2,29 +2,31 @@
     <div class="mid-class" id="app">
         <div class="art-right-w3ls">
             <h2>Sign In and Sign Up</h2>
-            <form action="#" method="post">
+
+            <el-form ref="form" :model="form" :rules="rules">
                 <div class="main">
                     <div class="form-left-to-w3l">
-                        <input type="text" name="name" placeholder="Username" required="">
-                    </div>
-                    <div class="form-left-to-w3l ">
-                        <input type="password" name="password" placeholder="Password" required="">
-                        <div class="clear"></div>
+                        <el-form-item prop="username">
+                                <el-input v-model="form.username" placeholder="Username" @keyup.native="trimLR"></el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                                <el-input type="password" v-model="form.password" placeholder="Password" @keyup.native="trimLR"></el-input>
+                        </el-form-item>
                     </div>
                 </div>
-                <div class="left-side-forget">
-                    <input type="checkbox" class="checked">
-                    <span class="remenber-me">Remember me </span>
-                </div>
+                <!--<div class="left-side-forget">-->
+                    <!--<input type="checkbox" class="checked">-->
+                    <!--<span class="remenber-me">Remember me </span>-->
+                <!--</div>-->
                 <div class="right-side-forget">
                     <!--忘记密码的链接-->
                     <a href="#" class="for">Forgot password...?</a>
                 </div>
                 <div class="clear"></div>
                 <div class="btnn">
-                    <button type="submit">Sign In</button>
+                    <el-button type="primary" @click="toLogin('form')">Sign In</el-button>
                 </div>
-            </form>
+            </el-form>
             <div class="w3layouts_more-buttn">
                 <h3>Don't Have an account..?
                     <!--进行注册的链接-->
@@ -76,30 +78,56 @@
 </template>
 
 <script>
+    import {request} from "../network/request";
+
     export default {
         name: "Login",
         data(){
             return{
-
+                form:{
+                    username:'',
+                    password:'',
+                },
+                rules: {
+                    username: [
+                        { required: true, message: '账号不能为空', trigger: 'blur' }
+                    ],
+                    password: [
+                        {required: true, message: '密码不能为空', trigger: 'blur'}
+                    ]
+                }
             }
         },
         methods: {
             hello(){
-                this.$axios({
-                    method: 'GET',
-                    url: 'http://localhost:8081/user/findAllUser',
-                    data: {
-
-                    }
-                    }).then((response)=>{
-                    console.log(response);
-                }).catch((error)=>{
-                    console.log(error);
+                console.log("嘿嘿");
+                request({
+                    url:'/user/findAllUser',
+                    method:'post',
+                }).then(res => {
+                    console.log(res);
+                }).catch(err => {
+                    console.log(err);
                 })
+            },
+            toLogin(formName){
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        console.log("Sing in");
+                        console.log(this.form.username);
+                        console.log(this.form.password);
+                    }
+
+                })
+            },
+            trimLR(){
+                // 对前端进行去除空格处理
+                this.form.username = this.form.username.replace(/^\s+|\s+$/gm,'');
+                this.form.password = this.form.password.replace(/^\s+|\s+$/gm,'');
             }
         },
         created(){
-            this.hello();
+
         }
     }
 </script>
