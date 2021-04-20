@@ -7,9 +7,9 @@
             <el-container>
                 <el-aside id="elaside">
                     <Aside>
-                        <user-slot-aside slot="slotUser" v-show="userShow"></user-slot-aside>
-                        <coach-slot-aside slot="slotCoach" v-show="coachShow"></coach-slot-aside>
-                        <admin-slot-aside slot="slotAdmin" v-show="adminShow"></admin-slot-aside>
+                        <user-slot-aside slot="slotUser" v-show="show==='user'"></user-slot-aside>
+                        <coach-slot-aside slot="slotCoach" v-show="show==='coach'"></coach-slot-aside>
+                        <admin-slot-aside slot="slotAdmin" v-show="show==='admin'"></admin-slot-aside>
                     </Aside>
                 </el-aside>
                 <el-main id="elmain">
@@ -38,11 +38,13 @@
         },
         data(){
             return{
-                userShow: false,
-                coachShow: false,
-                adminShow: true,
+
             }
         },
+        created(){
+            this.show = this.$route.params.type ;
+            this.$router.push({name:'/middle/'+this.show} );
+        }
     }
 </script>
 

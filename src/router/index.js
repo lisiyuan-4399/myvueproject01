@@ -32,65 +32,80 @@ const routes = [
     },
     {
         path: '/middle',
+        name: '/middle',
         component: Middle,
         children:[
             // 管理员路由
             {
                 path: '/middle/admin',
+                name: '/middle/admin',
                 redirect: '/middle/admin/user'
             },
             {
                 path: '/middle/admin/user',
+                name: '/middle/admin/user',
                 component: User
             },
             {
                 path: '/middle/admin/coach',
+                name: '/middle/admin/coach',
                 component: Coach
             },
             {
                 path: '/middle/admin/equipment',
+                name: '/middle/admin/equipment',
                 component: Equipment
             },
             {
                 path: '/middle/admin/appointment',
+                name: '/middle/admin/appointment',
                 component: Appointment
             },
             // 教练路由
             {
-                path: '/middle/coac',
+                path: '/middle/coach',
+                name: '/middle/coach',
                 redirect: '/middle/coach/toview'
             },
             {
                 path: '/middle/coach/toview',
+                name: '/middle/coach/toview',
                 component: ToView
             },
             {
                 path: '/middle/coach/coachmyappointment',
+                name: '/middle/coach/coachmyappointment',
                 component: CoachMyAppoint
             },
             //用户路由
             {
                 path: '/middle/user',
+                name: '/middle/user',
                 redirect: '/middle/user/equipappoint'
             },
             {
                 path: '/middle/user/equipappoint',
+                name: '/middle/user/equipappoint',
                 component: EquipAppoint
             },
             {
                 path: '/middle/user/coachappoint',
+                name: '/middle/user/coachappoint',
                 component: CoachAppoint
             },
             {
                 path: '/middle/user/suggest',
+                name: '/middle/user/suggest',
                 component: Suggest
             },
             {
                 path: '/middle/user/myappoint',
+                name: '/middle/user/myappoint',
                 component: MyAppoint
             },
             {
                 path: '/middle/user/personaldetails',
+                name: '/middle/user/personaldetails',
                 component: PersonalDetails
             }
         ]

@@ -12,6 +12,18 @@
                         <el-form-item prop="password">
                                 <el-input type="password" v-model="form.password" placeholder="Password" @keyup.native="trimLR"></el-input>
                         </el-form-item>
+
+                        <el-form-item prop="getType">
+                            <el-select v-model="form.value">
+                                <el-option
+                                        v-for="item in options"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+
                     </div>
                 </div>
                 <!--<div class="left-side-forget">-->
@@ -87,6 +99,7 @@
                 form:{
                     username:'',
                     password:'',
+                    value: 'user',
                 },
                 rules: {
                     username: [
@@ -95,27 +108,51 @@
                     password: [
                         {required: true, message: '密码不能为空', trigger: 'blur'}
                     ]
-                }
+                },
+                options:[
+                    {
+                        value: 'user',
+                        label: '会员'
+                    },
+                    {
+                        value: 'coach',
+                        label: '教练'
+                    },
+                    {
+                        value: 'admin',
+                        label: '管理员'
+                    }
+                ],
+
             }
         },
         methods: {
-            hello(){
-                console.log("嘿嘿");
-                request({
-                    url:'/user/findAllUser',
-                    method:'post',
-                }).then(res => {
-                    console.log(res);
-                }).catch(err => {
-                    console.log(err);
-                })
-            },
+            //登录方法
             toLogin(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        console.log("Sing in");
-                        console.log(this.form.username);
-                        console.log(this.form.password);
+                        request({
+                            url:'/login/toLogin/'+this.form.value,
+                            method:'post',
+                            data:{
+                                username: this.form.username,
+                                password: this.form.password,
+                            }
+                        }).then(res => {
+                            console.log(res);
+                            const type = res.data.code === '0' ? 'success' : 'error' ;
+                            if (res.data.code === '0'){
+                                console.log("登录成功") ;
+                                //进行路由跳转
+                                const name = '/middle' ;
+                                this.$router.push({name:name, params:{type:this.form.value}} );
+                            }else {
+                                this.$back('详情',res.data.msg,type);
+                            }
+
+                        }).catch(err => {
+                            console.log(err);
+                        })
                     }
 
                 })
@@ -124,7 +161,7 @@
                 // 对前端进行去除空格处理
                 this.form.username = this.form.username.replace(/^\s+|\s+$/gm,'');
                 this.form.password = this.form.password.replace(/^\s+|\s+$/gm,'');
-            }
+            },
         },
         created(){
 

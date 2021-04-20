@@ -1,12 +1,15 @@
 <template>
     <div>
-        器材预约
+        器材查看
     </div>
 </template>
 
 <script>
     export default {
-        name: "EquipAppoint"
+        name: "EquipAppoint",
+        data(){
+            return{}
+        }
     }
 </script>
 
