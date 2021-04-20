@@ -19,6 +19,11 @@ const PersonalDetails = () => import('../views/user/PersonalDetails');
 //1.安装插件
 Vue.use(VueRouter);
 
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+    return originalPush.call(this, location).catch(err => err)
+};
+
 //3.对 routes 进行抽取
 const routes = [
     //进行默认跳转

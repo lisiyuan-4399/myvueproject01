@@ -100,6 +100,7 @@
                     username:'',
                     password:'',
                     value: 'user',
+                    name: '',
                 },
                 rules: {
                     username: [
@@ -143,9 +144,14 @@
                             const type = res.data.code === '0' ? 'success' : 'error' ;
                             if (res.data.code === '0'){
                                 console.log("登录成功") ;
+                                // vuex 进行存取 userinfo 值
+                                this.$store.commit('setUserInfo',{
+                                    name: res.data.data.name,
+                                    value: this.form.value,
+                                }) ;
                                 //进行路由跳转
                                 const name = '/middle' ;
-                                this.$router.push({name:name, params:{type:this.form.value}} );
+                                this.$router.push({name:name} );
                             }else {
                                 this.$back('详情',res.data.msg,type);
                             }

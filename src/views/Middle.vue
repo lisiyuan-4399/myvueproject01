@@ -35,15 +35,17 @@
             CoachSlotAside,
             AdminSlotAside,
 
+
+
         },
         data(){
             return{
-
+                show : this.$store.state.userInfo.value,
             }
         },
         created(){
-            this.show = this.$route.params.type ;
-            this.$router.push({name:'/middle/'+this.show} );
+            console.log("第一次"+this.$store.state.userInfo.value);
+            this.$router.push({name:'/middle/'+this.$store.state.userInfo.value} );
         }
     }
 </script>

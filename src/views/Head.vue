@@ -12,9 +12,9 @@
                     </div>
                     <div>
               <span>
-                  用户姓名
+                  {{user.name}}
                    <el-divider direction="vertical"></el-divider>
-                  用户职位
+                  {{user.value === 'user'? '用户':(user.value === 'coach'? '教练':(user.value === 'admin'?'管理员':'-')) }}
               </span>
                     </div>
                 </div>
@@ -25,7 +25,22 @@
 
 <script>
     export default {
-        name: "Head"
+        name: "Head",
+        data(){
+            return{
+                user: {
+                    name: this.$store.state.userInfo.name,
+                    value: this.$store.state.userInfo.value,
+                },
+            }
+        },
+        methods:{
+
+        },
+        mounted(){
+
+        },
+
     }
 </script>
 
