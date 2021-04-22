@@ -40,12 +40,12 @@
         },
         data(){
             return{
-                show : this.$store.state.userInfo.value,
+                show : localStorage.getItem("user"),
             }
         },
         created(){
             console.log("第一次"+this.$store.state.userInfo.value);
-            this.$router.push({name:'/middle/'+this.$store.state.userInfo.value} );
+            this.$router.push({name:'/middle/'+localStorage.getItem("user")} );
         }
     }
 </script>

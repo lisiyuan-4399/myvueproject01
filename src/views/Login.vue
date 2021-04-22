@@ -138,7 +138,7 @@
                             data:{
                                 username: this.form.username,
                                 password: this.form.password,
-                            }
+                            },
                         }).then(res => {
                             console.log(res);
                             const type = res.data.code === '0' ? 'success' : 'error' ;
@@ -146,12 +146,18 @@
                                 console.log("登录成功") ;
                                 // vuex 进行存取 userinfo 值
                                 this.$store.commit('setUserInfo',{
-                                    name: res.data.data.name,
+                                    name: res.data.data.user.name,
                                     value: this.form.value,
                                 }) ;
                                 //进行路由跳转
                                 const name = '/middle' ;
                                 this.$router.push({name:name} );
+
+                                //全局存取 token
+                                localStorage.setItem("token",res.data.data.token);
+                                localStorage.setItem("user",this.form.value) ;
+                                console.log("token:"+localStorage.getItem("token"));
+
                             }else {
                                 this.$back('详情',res.data.msg,type);
                             }

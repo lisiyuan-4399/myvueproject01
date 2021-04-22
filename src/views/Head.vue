@@ -24,22 +24,39 @@
 </template>
 
 <script>
+    import {request} from "../network/request";
     export default {
         name: "Head",
         data(){
             return{
                 user: {
-                    name: this.$store.state.userInfo.name,
-                    value: this.$store.state.userInfo.value,
+                    // name: this.$store.state.userInfo.name,
+                    value: localStorage.getItem("user"),
+                    name:'',
                 },
+
             }
         },
         methods:{
-
+            getUserInfo(){
+                request({
+                    url:'/user/getUserInfo',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                }).then(res => {
+                    if(res.data.code === '0'){
+                        this.user.name = res.data.data.name;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
         },
-        mounted(){
-
-        },
+        created(){
+            this.getUserInfo() ;
+        }
 
     }
 </script>
