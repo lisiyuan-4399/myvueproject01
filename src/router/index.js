@@ -29,10 +29,12 @@ const routes = [
     //进行默认跳转
     {
         path: '/',
+        name: '/',
         redirect: '/login'
     },
     {
         path: '/login',
+        name: '/login',
         component: Login
     },
     {

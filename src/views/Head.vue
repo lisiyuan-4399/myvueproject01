@@ -15,6 +15,8 @@
                   {{user.name}}
                    <el-divider direction="vertical"></el-divider>
                   {{user.value === 'user'? '用户':(user.value === 'coach'? '教练':(user.value === 'admin'?'管理员':'-')) }}
+                  <el-divider direction="vertical"></el-divider>
+                  <el-link :underline="false" @click="logout()">退出</el-link>
               </span>
                     </div>
                 </div>
@@ -52,6 +54,24 @@
                 }).catch(err => {
                     console.log(err) ;
                 })
+            },
+            logout(){
+                console.log("退出");
+                request({
+                    url:'/login/logout',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                }).then(res => {
+                    if(res.data.code === '0'){
+                        localStorage.clear() ;
+                        this.$router.push({name:'/login'});
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+
             },
         },
         created(){

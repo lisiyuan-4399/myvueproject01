@@ -45,7 +45,12 @@
         },
         created(){
             console.log("第一次"+this.$store.state.userInfo.value);
-            this.$router.push({name:'/middle/'+localStorage.getItem("user")} );
+            if(localStorage.getItem("user") != null){
+                this.$router.push({name:'/middle/'+localStorage.getItem("user")} );
+            }else{
+                this.$router.push({name:'/login'});
+            }
+
         }
     }
 </script>

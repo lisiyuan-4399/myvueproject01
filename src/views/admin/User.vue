@@ -22,7 +22,8 @@
                             <el-input v-model="form.name" autocomplete="off" style="width: 300px"></el-input>
                         </el-form-item>
                         <el-form-item label="账号" prop="username" :label-width="formLabelWidth">
-                            <el-input v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
+                            <el-input v-if="title === '新增用户'" v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
+                            <el-input v-else readonly v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
                         </el-form-item>
                         <el-form-item label="密码" prop="password" :label-width="formLabelWidth">
                             <el-input v-model="form.password" autocomplete="off" style="width: 300px"></el-input>
@@ -40,8 +41,8 @@
                     </el-form>
                     <div class="demo-drawer__footer" style="padding-left: 20px">
                         <el-button @click="cancelForm">取 消</el-button>
-                        <el-button v-show="title == '新增用户'" type="primary" @click="addUser('form')" >确 定(添加)</el-button>
-                        <el-button v-show="title == '修改用户'" type="primary" @click="updateUser('form')" >确 定(修改)</el-button>
+                        <el-button v-show="title === '新增用户'" type="primary" @click="addUser('form')" >确 定(添加)</el-button>
+                        <el-button v-show="title === '修改用户'" type="primary" @click="updateUser('form')" >确 定(修改)</el-button>
                     </div>
                 </div>
             </el-drawer>
@@ -86,12 +87,6 @@
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="is_delete"
-                    label="状态"
-                    align="center"
-                    :formatter="isDeleteFormat">
-            </el-table-column>
-            <el-table-column
                     label="操作"
                     align="center">
                 <template slot-scope="scope">
@@ -104,32 +99,13 @@
 </template>
 
 <script>
+    import {request} from "../../network/request";
+
     export default {
         name: "User",
         data() {
             return {
-                tableData: [
-                    {
-                    id: 1,
-                    name: '李思雨',
-                    username: 'lisi',
-                    password: 'lisi',
-                    sex: 1,
-                    phone: '123455',
-                    email: '132@qq.com',
-                    is_delete: 0
-                    },
-                    {
-                        id: 2,
-                        name: '郭怀丽',
-                        username: 'guo',
-                        password: 'guo',
-                        sex: 0,
-                        phone: '123455',
-                        email: '132@qq.com',
-                        is_delete: 0
-                    }
-                ],
+                tableData: [],
                 input: '',
                 title: '',
                 form: {
@@ -158,13 +134,53 @@
             }
         },
         methods: {
+            getUserAll(){
+                request({
+                    url:'/user/getUserAll',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                }).then(res => {
+                    if(res.data.code === '0'){
+                       this.tableData = res.data.data ;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
             addUser(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         console.log("添加用户");
-
                         this.dialog = false;
                         console.log(this.form);
+                        const user = this.form ;
+                        request({
+                            url:'/user/addUser',
+                            method:'post',
+                            headers:{
+                                "token": localStorage.getItem("token") ,
+                            },
+                            data:{
+                                name: user.name,
+                                sex: user.sex,
+                                username: user.username,
+                                password: user.password,
+                                email: user.email,
+                                phone: user.phone
+                            }
+                        }).then(res => {
+                            console.log(res);
+                            if(res.data.code === '0'){
+                                this.getUserAll();
+                                this.$back('添加用户',res.data.msg,'success');
+                            }else{
+                                this.$back('添加用户',res.data.msg,'error');
+                            }
+                        }).catch(err => {
+                            console.log(err) ;
+                        })
                     }
                 });
 
@@ -179,14 +195,6 @@
                 }
                 if(date.sex == 1){
                     return '男'
-                }
-            },
-            isDeleteFormat(date){
-                if(date.is_delete == 0){
-                    return '-'
-                }
-                if(date.is_delete == 1){
-                    return '已删除'
                 }
             },
             //去添加
@@ -216,9 +224,35 @@
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         console.log("修改用户");
-
                         this.dialog = false;
                         console.log(this.form);
+                        const user = this.form ;
+                        request({
+                            url:'/user/updateUser',
+                            method:'post',
+                            headers:{
+                                "token": localStorage.getItem("token") ,
+                            },
+                            data:{
+                                id: user.id ,
+                                name: user.name,
+                                sex: user.sex,
+                                username: user.username,
+                                password: user.password,
+                                email: user.email,
+                                phone: user.phone
+                            }
+                        }).then(res => {
+                            console.log(res);
+                            if(res.data.code === '0'){
+                                this.getUserAll();
+                                this.$back('修改',res.data.msg,'success');
+                            }else{
+                                this.$back('修改',res.data.msg,'error');
+                            }
+                        }).catch(err => {
+                            console.log(err) ;
+                        })
                     }
                 });
             },
@@ -231,8 +265,31 @@
                 }).then(() => {
                     //调用删除方法
                     console.log("删除方法");
+                    request({
+                        url:'/user/deleteUser?id='+data.id,
+                        method:'post',
+                        headers:{
+                            "token": localStorage.getItem("token") ,
+                        },
+                        data:{
+                        }
+                    }).then(res => {
+                        console.log(res);
+                        const title = "删除" ;
+                        if(res.data.code === '0'){
+                            this.getUserAll();
+                            this.$back(title,res.data.msg,'success');
+                        }else{
+                            this.$back(title,res.data.msg,'error');
+                        }
+                    }).catch(err => {
+                        console.log(err) ;
+                    })
                 }).catch(() => {});
             },
+        },
+        created(){
+            this.getUserAll();
         },
     }
 </script>
