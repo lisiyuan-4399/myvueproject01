@@ -22,7 +22,8 @@
                             <el-input v-model="form.name" autocomplete="off" style="width: 300px"></el-input>
                         </el-form-item>
                         <el-form-item label="账号" prop="username" :label-width="formLabelWidth">
-                            <el-input v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
+                            <el-input v-if="title === '新增教练'" v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
+                            <el-input v-else readonly v-model="form.username" autocomplete="off" style="width: 300px"></el-input>
                         </el-form-item>
                         <el-form-item label="密码" prop="password" :label-width="formLabelWidth">
                             <el-input v-model="form.password" autocomplete="off" style="width: 300px"></el-input>
@@ -40,8 +41,22 @@
                         <el-form-item label="描述" prop="description" :label-width="formLabelWidth">
                             <el-input v-model="form.description" autocomplete="off" style="width: 300px"></el-input>
                         </el-form-item>
-                        <el-form-item label="图片" prop="pic" :label-width="formLabelWidth">
-                            <el-input v-model="form.pic" autocomplete="off" style="width: 300px"></el-input>
+                        <el-form-item label="图片" :label-width="formLabelWidth">
+                            <el-upload
+                                    ref="upload"
+                                    :action="uploadUrl()"
+                                    list-type="picture-card"
+                                    :before-upload="myBeforeUpload"
+                                    :on-change="myOnChange"
+                                    :on-preview="myOnPreview"
+                                    :on-success="myOnSuccess"
+                                    :auto-upload="false"
+                                    :multiple="false"
+                                    :file-list="fl"
+                                    :data="myData"
+                                    :headers="myHeaders">
+                                <i class="el-icon-plus"></i>
+                            </el-upload>
                         </el-form-item>
                     </el-form>
                     <div class="demo-drawer__footer" style="padding-left: 20px">
@@ -97,12 +112,6 @@
                 align="center">
         </el-table-column>
         <el-table-column
-                prop="is_delete"
-                label="状态"
-                align="center"
-                :formatter="isDeleteFormat">
-        </el-table-column>
-        <el-table-column
                 label="操作"
                 align="center">
             <template slot-scope="scope">
@@ -115,38 +124,18 @@
 </template>
 
 <script>
+    import {request} from "../../network/request";
+
     export default {
         name: "Coach",
         data() {
             return {
-                tableData: [
-                    {
-                        id: 1,
-                        name: '李思雨',
-                        username: 'lisi',
-                        password: 'lisi',
-                        sex: 1,
-                        phone: '123455',
-                        email: '132@qq.com',
-                        description: '型男',
-                        pic: '图片链接',
-                        num: 99,
-                        is_delete: 0
-                    },
-                    {
-                        id: 2,
-                        name: '郭怀丽',
-                        username: 'guo',
-                        password: 'guo',
-                        sex: 0,
-                        phone: '123455',
-                        email: '132@qq.com',
-                        description: '靓女',
-                        pic: '图片链接',
-                        num: 99,
-                        is_delete: 0,
-                    }
-                ],
+                fl:[],
+                //上传商品图片
+                myHeaders:{
+                    "token": localStorage.getItem("token") ,
+                },
+                tableData: [],
                 input: '',
                 title: '',
                 form: {
@@ -178,13 +167,46 @@
             }
         },
         methods: {
+            myOnSuccess(response,file,fileList){
+                console.log("myOnSuccess") ;
+                console.log(response);
+                console.log(file);
+                console.log(fileList);
+                if(response.code === '0'){
+                    this.dialog = false;
+                    this.form = {};
+                    this.fl = [];
+                    this.getCoachAll() ;
+                    this.$back('新增',response.msg,'success');
+                }else{
+                    this.dialog = false;
+                    this.$back('新增',response.msg,'error');
+                }
+
+
+            },
+            myOnPreview(file){
+                console.log("myOnPreview") ;
+                console.log(file);
+            },
+            //导入接口地址
+            uploadUrl() {
+                return 'http://127.0.0.1:8081/coach/uploadPath'  //接口
+            },
+            myOnChange(file, fileList){
+                console.log("myOnChange");
+                console.log(file);
+                console.log(fileList);
+            },
+            myBeforeUpload(file){
+                console.log("myBeforeUpload");
+                console.log(file);
+            },
+
             addCoach(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        console.log("添加教练");
-
-                        this.dialog = false;
-                        console.log(this.form);
+                        this.$refs.upload.submit();
                     }
                 });
 
@@ -199,14 +221,6 @@
                 }
                 if(date.sex == 1){
                     return '男'
-                }
-            },
-            isDeleteFormat(date){
-                if(date.is_delete == 0){
-                    return '-'
-                }
-                if(date.is_delete == 1){
-                    return '已删除'
                 }
             },
             //去添加
@@ -233,15 +247,46 @@
                     pic: data.pic,
                     num: data.num,
                 } ;
+                this.fl.push({name:this.form.pic,url:"http://127.0.0.1:8081"+this.form.pic}) ;
             },
             //修改用户
             updateCoach(formName){
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
                         console.log("修改教练");
-
                         this.dialog = false;
                         console.log(this.form);
+
+                        const user = this.form ;
+                        request({
+                            url:'/coach/updateCoach',
+                            method:'post',
+                            headers:{
+                                "token": localStorage.getItem("token") ,
+                            },
+                            data:{
+                                id : user.id,
+                                name : user.name,
+                                username: user.username,
+                                password: user.password,
+                                sex: user.sex,
+                                phone: user.phone,
+                                email: user.email,
+                                description: user.description,
+                                pic: user.pic,
+                                num: user.num,
+                            }
+                        }).then(res => {
+                            console.log(res);
+                            if(res.data.code === '0'){
+                                this.getCoachAll();
+                                this.$back('修改',res.data.msg,'success');
+                            }else{
+                                this.$back('修改',res.data.msg,'error');
+                            }
+                        }).catch(err => {
+                            console.log(err) ;
+                        })
                     }
                 });
             },
@@ -254,8 +299,55 @@
                 }).then(() => {
                     //调用删除方法
                     console.log("删除方法");
+                    request({
+                        url:'/coach/deleteCoach?id='+data.id,
+                        method:'post',
+                        headers:{
+                            "token": localStorage.getItem("token") ,
+                        },
+                        data:{
+                        }
+                    }).then(res => {
+                        console.log(res);
+                        const title = "删除" ;
+                        if(res.data.code === '0'){
+                            this.getCoachAll();
+                            this.$back(title,res.data.msg,'success');
+                        }else{
+                            this.$back(title,res.data.msg,'error');
+                        }
+                    }).catch(err => {
+                        console.log(err) ;
+                    })
+
+
                 }).catch(() => {});
             },
+            getCoachAll(){
+                request({
+                    url:'/coach/getCoachAll',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                }).then(res => {
+                    if(res.data.code === '0'){
+                        this.tableData = res.data.data ;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
+        },
+        created(){
+            this.getCoachAll() ;
+        },
+        computed: {
+            // 这里定义上传文件时携带的参数，即表单数据
+            //上传文件时候 , 传递的数据
+            myData: function() {
+                return this.form ;
+            }
         },
     }
 </script>
