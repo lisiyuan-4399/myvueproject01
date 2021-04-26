@@ -50,6 +50,7 @@
                                     :on-change="myOnChange"
                                     :on-preview="myOnPreview"
                                     :on-success="myOnSuccess"
+                                    :on-remove="myOnRemove"
                                     :auto-upload="false"
                                     :multiple="false"
                                     :file-list="fl"
@@ -62,7 +63,8 @@
                     <div class="demo-drawer__footer" style="padding-left: 20px">
                         <el-button @click="cancelForm">取 消</el-button>
                         <el-button v-show="title == '新增教练'" type="primary" @click="addCoach('form')" >确 定(添加)</el-button>
-                        <el-button v-show="title == '修改教练'" type="primary" @click="updateCoach('form')" >确 定(修改)</el-button>
+                        <el-button  v-show="title == '修改教练' && flag" type="primary" @click="updateCoachToPian('form')" >确 定(图片)</el-button>
+                        <el-button v-show="title == '修改教练' && !flag" type="primary" @click="updateCoach('form')" >确 定(修改)</el-button>
                     </div>
                 </div>
             </el-drawer>
@@ -130,6 +132,9 @@
         name: "Coach",
         data() {
             return {
+                flag: false,
+                myUploadUrl: 'http://127.0.0.1:8081/coach/uploadPath',
+                url: 'http://127.0.0.1:8081' ,
                 fl:[],
                 //上传商品图片
                 myHeaders:{
@@ -167,6 +172,12 @@
             }
         },
         methods: {
+            myOnRemove(file, fileList){
+                console.log(file);
+                console.log(fileList);
+                this.fl = [];
+                this.flag = true;
+            },
             myOnSuccess(response,file,fileList){
                 console.log("myOnSuccess") ;
                 console.log(response);
@@ -177,10 +188,10 @@
                     this.form = {};
                     this.fl = [];
                     this.getCoachAll() ;
-                    this.$back('新增',response.msg,'success');
+                    this.$back('教练',response.msg,'success');
                 }else{
                     this.dialog = false;
-                    this.$back('新增',response.msg,'error');
+                    this.$back('教练',response.msg,'error');
                 }
 
 
@@ -191,7 +202,8 @@
             },
             //导入接口地址
             uploadUrl() {
-                return 'http://127.0.0.1:8081/coach/uploadPath'  //接口
+                console.log(this.myUploadUrl);
+                return this.myUploadUrl;   //接口
             },
             myOnChange(file, fileList){
                 console.log("myOnChange");
@@ -225,11 +237,19 @@
             },
             //去添加
             toAddCoach(){
+                this.myUploadUrl = 'http://127.0.0.1:8081/coach/uploadPath';
                 this.title = '新增教练';
                 this.dialog = true;
+                this.form = {};
+                this.fl =  [];
             },
             // 去修改
             toUpdateForm(data){
+                this.myUploadUrl = 'http://127.0.0.1:8081/coach/updateUploadPath';
+                this.flag =  false; //判断是否修改图片的按钮
+                if(this.fl.length>0){
+                    this.fl.pop() ;
+                }
                 console.log(data);
                 this.title = '修改教练' ;
                 // 进行编辑弹框
@@ -247,7 +267,20 @@
                     pic: data.pic,
                     num: data.num,
                 } ;
-                this.fl.push({name:this.form.pic,url:"http://127.0.0.1:8081"+this.form.pic}) ;
+                if(this.form.pic != null){
+                    this.fl.push({name:this.form.pic,url:this.url+this.form.pic}) ;
+                }
+
+
+            },
+            updateCoachToPian(formName){
+                console.log("TuPian");
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        // 修改添加图片的方法
+                        this.$refs.upload.submit();
+                    }
+                });
             },
             //修改用户
             updateCoach(formName){
@@ -273,7 +306,6 @@
                                 phone: user.phone,
                                 email: user.email,
                                 description: user.description,
-                                pic: user.pic,
                                 num: user.num,
                             }
                         }).then(res => {
@@ -353,5 +385,11 @@
 </script>
 
 <style scoped>
+
+
+    .el-upload-list__item {
+        transition: none !important;
+    }
+
 
 </style>
