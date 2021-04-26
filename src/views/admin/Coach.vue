@@ -363,6 +363,7 @@
                         "token": localStorage.getItem("token") ,
                     },
                 }).then(res => {
+                    console.log(res);
                     if(res.data.code === '0'){
                         this.tableData = res.data.data ;
                     }
