@@ -41,12 +41,12 @@
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="begin_time"
+                    prop="beginTime"
                     label="开始时间"
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="end_time"
+                    prop="endTime"
                     label="结束时间"
                     align="center">
             </el-table-column>
@@ -56,7 +56,7 @@
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="is_valid"
+                    prop="isValid"
                     label="状态"
                     align="center" :formatter="isValidFormat">
             </el-table-column>
@@ -64,8 +64,8 @@
                     label="操作"
                     align="center">
                 <template slot-scope="scope">
-                    <el-button v-show="scope.row.is_valid == 1" type="primary" circle>评价</el-button>
-                    <el-button v-show="scope.row.is_valid == 0" type="danger" circle>取消</el-button>
+                    <el-button v-show="scope.row.isValid == 1" type="primary" circle>评价</el-button>
+                    <el-button v-show="scope.row.isValid == 0" type="danger" circle>取消</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -73,34 +73,13 @@
 </template>
 
 <script>
+    import {request} from "../../network/request";
+
     export default {
         name: "MyAppoint",
         data(){
             return{
-                tableData: [
-                    {
-                        id: 1,
-                        name: '李思雨',
-                        age: 22,
-                        sex: 1,
-                        phone: '15238',
-                        begin_time: '2016-05-04',
-                        end_time: '2016-05-04',
-                        evaluate: '-',
-                        is_valid: 0,
-                    },
-                    {
-                        id: 2,
-                        name: '郭怀丽',
-                        age: 21,
-                        sex: 0,
-                        phone: '15890',
-                        begin_time: '2016-05-04',
-                        end_time: '2016-05-04',
-                        evaluate: '-',
-                        is_valid: 1,
-                    }
-                ],
+                tableData: [],
                 input: '',
             }
         },
@@ -115,13 +94,36 @@
                 }
             },
             isValidFormat(date){
-                if(date.is_valid == 0){
+                if(date.isValid == 0){
                     return '已预约'
                 }
-                if(date.is_valid == 1){
+                if(date.isValid == 1){
                     return '已完成'
                 }
-            }
+            },
+            //获取我的预约
+            getAppointAll(){
+                request({
+                    url:'/appoint/getAppointAll',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                    params:{
+                        "userId": JSON.parse(localStorage.getItem("userInfo")).id,
+                    },
+                }).then(res => {
+                    console.log(res);
+                    if(res.data.code==='0'){
+                        this.tableData = res.data.data ;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
+        },
+        created(){
+            this.getAppointAll() ;
         }
     }
 </script>

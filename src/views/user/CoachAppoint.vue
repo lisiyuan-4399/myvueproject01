@@ -19,6 +19,12 @@
             >
                 <div class="demo-drawer__content" style="padding-left: 50px">
                     <el-form :model="form" ref="form" >
+                        <el-form-item prop="pic" :label-width="formLabelWidth">
+                            <div class="block">
+                                <el-image style="width: 300px; height: 300px;"
+                                          :src="'http://127.0.0.1:8081'+form.pic" ></el-image>
+                            </div>
+                        </el-form-item>
                         <el-form-item label="姓名" prop="name" :label-width="formLabelWidth">
                             <el-input v-model="form.name" autocomplete="off" style="width: 300px" readonly></el-input>
                         </el-form-item>
@@ -29,7 +35,8 @@
                             <el-input v-model="form.num" autocomplete="off" style="width: 300px" readonly></el-input>
                         </el-form-item>
                         <el-form-item label="性别" prop="sex" :label-width="formLabelWidth">
-                            <el-input v-model="form.sex" autocomplete="off" style="width: 300px" readonly :formatter="isSexFormat"></el-input>
+                            <el-radio v-model="form.sex" :label="1" disabled>男</el-radio>
+                            <el-radio v-model="form.sex" :label="0" disabled>女</el-radio>
                         </el-form-item>
                         <el-form-item label="手机号" prop="phone" :label-width="formLabelWidth">
                             <el-input v-model="form.phone" autocomplete="off" style="width: 300px" readonly></el-input>
@@ -39,9 +46,6 @@
                         </el-form-item>
                         <el-form-item label="描述" prop="description" :label-width="formLabelWidth">
                             <el-input v-model="form.description" autocomplete="off" style="width: 300px" readonly></el-input>
-                        </el-form-item>
-                        <el-form-item label="图片" prop="pic" :label-width="formLabelWidth">
-                            <el-input v-model="form.pic" autocomplete="off" style="width: 300px" readonly></el-input>
                         </el-form-item>
 
                     </el-form>
@@ -94,36 +98,13 @@
 </template>
 
 <script>
+    import {request} from "../../network/request";
+
     export default {
         name: "CoachAppoint",
         data() {
             return {
-                tableData: [
-                    {
-                        id: 1,
-                        name: '李思雨',
-                        age: 22,
-                        sex: 1,
-                        phone: '123455',
-                        email: '132@qq.com',
-                        description: '型男',
-                        pic: '图片链接',
-                        num: 99,
-                        is_delete: 0
-                    },
-                    {
-                        id: 2,
-                        name: '郭怀丽',
-                        age: 21,
-                        sex: 0,
-                        phone: '123455',
-                        email: '132@qq.com',
-                        description: '靓女',
-                        pic: '图片链接',
-                        num: 99,
-                        is_delete: 0,
-                    }
-                ],
+                tableData: [],
                 input: '',
                 form: {
                     id: '',
@@ -176,10 +157,51 @@
                     type: 'warning'
                 }).then(() => {
                     console.log("去预约");
-                    console.log(data);
+                    request({
+                        url:'/appoint/addAppointByUser',
+                        method:'post',
+                        headers:{
+                            "token": localStorage.getItem("token") ,
+                        },
+                        params:{
+                            "userId": JSON.parse(localStorage.getItem("userInfo")).id,
+                            "coachId": data.id,
+                        }
+                    }).then(res => {
+                        console.log(res);
+                        const title = "预约" ;
+                        if(res.data.code==='0'){
+                            console.log("预约成功");
+                            this.getCoachAll() ;
+                            this.$back(title,res.data.msg,'success');
+                        }else{
+                            this.$back(title,res.data.msg,'error');
+                        }
+                    }).catch(err => {
+                        console.log(err) ;
+                    })
                 }).catch(() => {});
-            }
+            },
+            getCoachAll(){
+                request({
+                    url:'/coach/getCoachAllByConditions',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                }).then(res => {
+                    console.log(res);
+                    if(res.data.code==='0'){
+                        this.tableData = res.data.data ;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
         },
+        created(){
+            this.getCoachAll() ;
+        }
     }
 </script>
 

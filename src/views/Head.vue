@@ -48,7 +48,10 @@
                         "token": localStorage.getItem("token") ,
                     },
                 }).then(res => {
+                    console.log("getUserInfo") ;
+                    console.log(res);
                     if(res.data.code === '0'){
+                        localStorage.setItem("userInfo",JSON.stringify(res.data.data)) ;
                         this.user.name = res.data.data.name;
                     }
                 }).catch(err => {
