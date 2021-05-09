@@ -44,27 +44,24 @@
 </template>
 
 <script>
+    import {request} from "../../network/request";
+
     export default {
         name: "PersonalDetails",
         data(){
             return{
-                tableData: [
-                    {
-
-                    },
-                ],
                 form: {
-                    id: 1,
-                    name: '李思雨',
-                    sex: 1,
-                    phone: '123455',
-                    email: '132@qq.com',
-                    description: '型男',
-                    address: '河南项城',
-                    height: '175',
-                    qq: '1393906569',
-                    birthday: '2021-04-12',
-
+                    id: '',
+                    uId:'',
+                    name: '',
+                    sex: '',
+                    phone: '',
+                    email: '',
+                    description: '',
+                    address: '',
+                    height: '',
+                    qq: '',
+                    birthday: '',
                 },
                 formLabelWidth: '80px',
             }
@@ -74,8 +71,63 @@
 
             },
             updateMyMessage(){
+                const myData = this.form ;
+                request({
+                    url:'/user/updateMyMessage',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                    data:{
+                        id: myData.id,
+                        uid:JSON.parse(localStorage.getItem("userInfo")).id,
+                        name: myData.name,
+                        sex: myData.sex,
+                        phone: myData.phone,
+                        email: myData.email,
+                        description: myData.description,
+                        address: myData.address,
+                        height: myData.height,
+                        QQ: myData.qq,
+                        birthday: myData.birthday,
+                    }
+                }).then(res => {
+                    console.log(res);
+                    const title = "个人信息" ;
+                    if (res.data.code === '0'){
+                        console.log("修改个人信息成功!");
+                        this.getMyMessage() ;
+                        this.$back(title,res.data.msg,'success');
+                    }else{
+                        this.$back(title,res.data.msg,'error');
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
+            },
+            getMyMessage(){
+                request({
+                    url:'/user/getMyMessage',
+                    method:'post',
+                    headers:{
+                        "token": localStorage.getItem("token") ,
+                    },
+                    params:{
+                        "userId": JSON.parse(localStorage.getItem("userInfo")).id,
+                    },
+                }).then(res => {
+                    console.log(res);
+                    if (res.data.code === '0'){
+                        this.form = res.data.data ;
+                    }
+                }).catch(err => {
+                    console.log(err) ;
+                })
 
             },
+        },
+        created(){
+            this.getMyMessage() ;
         }
     }
 </script>

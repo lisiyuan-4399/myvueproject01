@@ -64,8 +64,8 @@
                     label="操作"
                     align="center">
                 <template slot-scope="scope">
-                    <el-button v-show="scope.row.isValid == 1" type="primary" circle>评价</el-button>
-                    <el-button v-show="scope.row.isValid == 0" type="danger" circle>取消</el-button>
+                    <el-button v-show="scope.row.isValid == 1" type="primary" circle @click="open(scope.row)">评价</el-button>
+                    <el-button v-show="scope.row.isValid == 0" type="danger" circle @click="cancleAppoit(scope.row)">取消</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -81,49 +81,124 @@
             return{
                 tableData: [],
                 input: '',
+                evaluate: '',
             }
         },
-        methods:{
+        methods: {
             // 添加性别过滤
-            isSexFormat(date){
-                if(date.sex == 0){
+            isSexFormat(date) {
+                if (date.sex == 0) {
                     return '女'
                 }
-                if(date.sex == 1){
+                if (date.sex == 1) {
                     return '男'
                 }
             },
-            isValidFormat(date){
-                if(date.isValid == 0){
+            isValidFormat(date) {
+                if (date.isValid == 0) {
                     return '已预约'
                 }
-                if(date.isValid == 1){
+                if (date.isValid == 1) {
                     return '已完成'
                 }
             },
             //获取我的预约
-            getAppointAll(){
+            getAppointAll() {
                 request({
-                    url:'/appoint/getAppointAll',
-                    method:'post',
-                    headers:{
-                        "token": localStorage.getItem("token") ,
+                    url: '/appoint/getAppointAll',
+                    method: 'post',
+                    headers: {
+                        "token": localStorage.getItem("token"),
                     },
-                    params:{
+                    params: {
                         "userId": JSON.parse(localStorage.getItem("userInfo")).id,
                     },
                 }).then(res => {
                     console.log(res);
-                    if(res.data.code==='0'){
-                        this.tableData = res.data.data ;
+                    if (res.data.code === '0') {
+                        this.tableData = res.data.data;
                     }
                 }).catch(err => {
-                    console.log(err) ;
+                    console.log(err);
                 })
             },
+            //取消预约
+            cancleAppoit(data) {
+                this.$confirm('是否取消预约 ' + data.name + '?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    console.log("取消预约");
+                    console.log(data);
+                    request({
+                        url: '/appoint/cancleAppointById',
+                        method: 'post',
+                        headers: {
+                            "token": localStorage.getItem("token"),
+                        },
+                        params: {
+                            "id": data.id,
+                        },
+                    }).then(res => {
+                        console.log(res);
+                        const title = "取消预约";
+                        if (res.data.code === '0') {
+                            console.log("取消预约成功");
+                            this.getAppointAll();
+                            this.$back(title, res.data.msg, 'success');
+                        } else {
+                            this.$back(title, res.data.msg, 'error');
+                        }
+                    }).catch(err => {
+                        console.log(err);
+                    })
+                }).catch(() => {
+                });
+            },
+            //评价预约
+            evaluateAppoit(data) {
+
+                request({
+                    url: '/appoint/evaluateAppoit',
+                    method: 'post',
+                    headers: {
+                        "token": localStorage.getItem("token"),
+                    },
+                    data:{
+                        'id': data.id,
+                        'evaluate': this.evaluate ,
+                    }
+                }).then(res => {
+                    console.log(res);
+                    const title = "评论预约";
+                    if (res.data.code === '0') {
+                        this.getAppointAll();
+                        this.$back(title, res.data.msg, 'success');
+                    } else {
+                        this.$back(title, res.data.msg, 'error');
+                    }
+                }).catch(err => {
+                    console.log(err);
+                })
+            },
+            open(data) {
+                this.$prompt('请输入评价', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                }).then(({ value }) => {
+                    this.evaluate = value ;
+                    this.evaluateAppoit(data) ;
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消输入'
+                    });
+                });
+            },
         },
-        created(){
-            this.getAppointAll() ;
+        created() {
+            this.getAppointAll();
         }
     }
 </script>

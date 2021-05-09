@@ -11,13 +11,12 @@
                         router>
                         <el-menu-item index="/middle/coach/toview">
                             <i class="el-icon-menu"></i>
-                            <span slot="title">查看预约</span>
-                        </el-menu-item>
-                        <el-menu-item index="/middle/coach/coachmyappointment">
-                            <i class="el-icon-menu"></i>
                             <span slot="title">我的预约</span>
                         </el-menu-item>
-
+                        <!--<el-menu-item index="/middle/coach/coachmyappointment">-->
+                            <!--<i class="el-icon-menu"></i>-->
+                            <!--<span slot="title">我的预约</span>-->
+                        <!--</el-menu-item>-->
                 </el-menu>
             </el-col>
         </el-row>
