@@ -9,8 +9,41 @@
                     clearable>
             </el-input>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <el-button type="primary" icon="el-icon-search">搜索</el-button>
+            <el-button type="primary" icon="el-icon-thumb">搜索</el-button>
 
+            <el-button type="primary" icon="el-icon-phone-outline" @click="individuationFormVisible = true">个性化预约</el-button>
+            &nbsp;&nbsp;
+            <!-- Form -->
+            <el-dialog title="个性化预约" :visible.sync="individuationFormVisible" width="300px">
+                <el-form :model="individuationForm" ref="individuationForm">
+                    <el-form-item label="性别:" prop="sex" :label-width="formLabelWidth">
+                        <el-select v-model="individuationForm.sex" placeholder="请选择">
+                            <el-option
+                                    v-for="item in optionsSex"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="训练类型:" prop="type" :label-width="formLabelWidth">
+                        <el-select v-model="individuationForm.type" placeholder="请选择">
+                            <el-option
+                                    v-for="item in optionsType"
+                                    :key="item.value"
+                                    :label="item.label"
+                                    :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="individuationFormVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="individuationAddAppoint('individuationForm')">确 定</el-button>
+                </div>
+            </el-dialog>
+
+            <el-button type="primary" icon="el-icon-mobile-phone" @click="autoAppoint()">一键预约</el-button>
             <!--点击详情弹出抽题-->
             <el-drawer
                     title="教练详情"
@@ -75,6 +108,12 @@
                     align="center">
             </el-table-column>
             <el-table-column
+                    prop="type"
+                    label="类型"
+                    align="center"
+                    :formatter="isTypeFormat">
+            </el-table-column>
+            <el-table-column
                     prop="sex"
                     label="性别"
                     align="center"
@@ -104,8 +143,31 @@
         name: "CoachAppoint",
         data() {
             return {
+                optionsSex: [{
+                    value: 1,
+                    label: '男'
+                }, {
+                    value: 0,
+                    label: '女'
+                }],
+                optionsType: [{
+                    value: 1,
+                    label: '减脂'
+                }, {
+                    value: 2,
+                    label: '塑形'
+                },{
+                    value: 3,
+                    label: '增肌'
+                }],
                 tableData: [],
                 input: '',
+                // 个性化表单
+                individuationFormVisible: false,
+                individuationForm:{
+                    sex: null,
+                    type: null,
+                },
                 form: {
                     id: '',
                     name: '',
@@ -122,6 +184,74 @@
             }
         },
         methods: {
+            //一键预约
+            autoAppoint(){
+                this.$confirm('是否进行一键预约操作?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    //调用删除方法
+                    console.log("一键预约");
+                    request({
+                        url:'/appoint/autoAppoint/'+JSON.parse(localStorage.getItem("userInfo")).id,
+                        method:'post',
+                        headers:{
+                            "token": localStorage.getItem("token") ,
+                        },
+                        data:{
+                        }
+                    }).then(res => {
+                        const title = "预约" ;
+                        if(res.data.code==='0'){
+                            console.log("预约成功");
+                            this.getCoachAll() ;
+                            this.$back(title,res.data.msg,'success');
+                        }else{
+                            this.individuationFormVisible = false ;
+                            this.$back(title,res.data.msg,'error');
+                        }
+                    }).catch(err => {
+                        console.log(err) ;
+                    })
+                }).catch(() => {});
+            },
+            //个性化添加预约
+            individuationAddAppoint(formName){
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        console.log(this.individuationForm) ;
+                        request({
+                            url:'/appoint/addAppointByUser',
+                            method:'post',
+                            headers:{
+                                "token": localStorage.getItem("token") ,
+                            },
+                            params:{
+                                "userId": JSON.parse(localStorage.getItem("userInfo")).id,
+                                "sex": this.individuationForm.sex ,
+                                "type": this.individuationForm.type
+                            }
+                        }).then(res => {
+                            const title = "预约" ;
+                            if(res.data.code==='0'){
+                                console.log("预约成功");
+                                this.individuationFormVisible = false ;
+                                this.getCoachAll() ;
+                                this.$back(title,res.data.msg,'success');
+                            }else{
+                                this.individuationFormVisible = false ;
+                                this.$back(title,res.data.msg,'error');
+                            }
+                        }).catch(err => {
+                            console.log(err) ;
+                        })
+                    }else {
+                        console.log('取消个性化预约~');
+                        return false;
+                    }
+                });
+            },
             // 添加性别过滤
             isSexFormat(date){
                 if(date.sex == 0){
@@ -129,6 +259,18 @@
                 }
                 if(date.sex == 1){
                     return '男'
+                }
+            },
+            // 添加类别过滤
+            isTypeFormat(date){
+                if(date.type == 1){
+                    return '减脂'
+                }
+                if(date.type == 2){
+                    return '塑形'
+                }
+                if(date.type == 3){
+                    return '增肌'
                 }
             },
             //查看教练详情

@@ -9,7 +9,7 @@
                     clearable>
             </el-input>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <el-button type="primary" icon="el-icon-search">搜索</el-button>
+            <el-button type="primary" icon="el-icon-thumb">搜索</el-button>
         </div>
         <el-table
                 :data="tableData"
@@ -56,9 +56,9 @@
                     align="center">
             </el-table-column>
             <el-table-column
-                    prop="isValid"
-                    label="状态"
-                    align="center" :formatter="isValidFormat">
+                    prop="type"
+                    label="类别"
+                    align="center" :formatter="isTypeFormat">
             </el-table-column>
             <el-table-column
                     label="操作"
@@ -100,6 +100,18 @@
                 }
                 if (date.isValid == 1) {
                     return '已完成'
+                }
+            },
+            // 添加类别过滤
+            isTypeFormat(date){
+                if(date.type == 1){
+                    return '减脂'
+                }
+                if(date.type == 2){
+                    return '塑形'
+                }
+                if(date.type == 3){
+                    return '增肌'
                 }
             },
             //获取我的预约

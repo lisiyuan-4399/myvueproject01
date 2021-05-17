@@ -17,7 +17,7 @@
                     clearable>
             </el-input>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <el-button type="primary" icon="el-icon-search">搜索</el-button>
+            <el-button type="primary" icon="el-icon-thumb">搜索</el-button>
 
         </div>
         <el-table

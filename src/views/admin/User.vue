@@ -9,7 +9,7 @@
                 clearable>
         </el-input>
         &nbsp;&nbsp;&nbsp;&nbsp;
-        <el-button type="primary" icon="el-icon-search">搜索</el-button>
+        <el-button type="primary" icon="el-icon-thumb">搜索</el-button>
         <el-button type="primary" icon="el-icon-user" @click="toAddUser()">新增用户</el-button>
             <el-drawer
                     :title="title"
